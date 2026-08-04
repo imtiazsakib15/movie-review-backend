@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { AppError } from "../errors/apiError";
+import { ApiError } from "../errors/apiError";
 import httpStatus from "http-status";
 import {env} from "../config/env";
 
@@ -11,8 +11,7 @@ const hashPassword = async (plainPassword: string): Promise<string> => {
     );
     return hashedPassword;
   } catch (error) {
-    throw new AppError(
-      httpStatus.INTERNAL_SERVER_ERROR,
+    throw ApiError.internal(
       "Error hashing password"
     );
   }
@@ -25,8 +24,7 @@ const comparePassword = async (
   try {
     return await bcrypt.compare(plainPassword, hashedPassword);
   } catch (error) {
-    throw new AppError(
-      httpStatus.INTERNAL_SERVER_ERROR,
+    throw ApiError.internal(
       "Error comparing password"
     );
   }
