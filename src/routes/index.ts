@@ -1,12 +1,19 @@
 import { Router } from "express";
-const router = Router();
+import AuthRoutes from "../modules/auth/auth.routes";
 
 interface ModuleRoute {
   path: string;
   route: Router;
 }
 
-const moduleRoutes: ModuleRoute[] = [];
+const router = Router();
+
+const moduleRoutes: ModuleRoute[] = [
+  {
+    path: "/auth",
+    route: AuthRoutes,
+  },
+];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 

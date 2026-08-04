@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import cors from "cors";
 import router from "./routes";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
@@ -16,9 +16,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1", router);
 
-  app.get('/health', (_req, res) => {
-    res.status(200).json({ success: true, message: 'OK', uptime: process.uptime() });
-  });
+app.get("/health", (_req, res) => {
+  res
+    .status(200)
+    .json({ success: true, message: "OK", uptime: process.uptime() });
+});
 app.use(notFound);
 app.use(globalErrorHandler);
 

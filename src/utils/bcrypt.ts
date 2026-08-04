@@ -1,36 +1,23 @@
 import bcrypt from "bcrypt";
 import { ApiError } from "../errors/apiError";
-import httpStatus from "http-status";
-import {env} from "../config/env";
+import { env } from "../config/env";
 
-const hashPassword = async (plainPassword: string): Promise<string> => {
+export const hashPassword = async (plainPassword: string): Promise<string> => {
   try {
-  const hashedPassword = await bcrypt.hash(
-      plainPassword,
-      env.SALT_ROUNDS
-    );
+    const hashedPassword = await bcrypt.hash(plainPassword, env.SALT_ROUNDS);
     return hashedPassword;
   } catch (error) {
-    throw ApiError.internal(
-      "Error hashing password"
-    );
+    throw ApiError.internal("Error hashing password");
   }
 };
 
-const comparePassword = async (
+export const comparePassword = async (
   plainPassword: string,
-  hashedPassword: string
+  hashedPassword: string,
 ): Promise<boolean> => {
   try {
     return await bcrypt.compare(plainPassword, hashedPassword);
   } catch (error) {
-    throw ApiError.internal(
-      "Error comparing password"
-    );
+    throw ApiError.internal("Error comparing password");
   }
-};
-
-export const BcryptHelper = {
-  hashPassword,
-  comparePassword,
 };
