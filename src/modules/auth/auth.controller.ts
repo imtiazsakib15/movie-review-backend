@@ -13,4 +13,9 @@ export const authController = {
     const result = await authService.login(req.body);
     sendSuccess(res, 200, "Logged in successfully", result);
   }),
+
+  me: catchAsync(async (req: Request, res: Response) => {
+    const user = await authService.getProfile(req.user?.id);
+    sendSuccess(res, 200, "Profile retrieved successfully", user);
+  }),
 };

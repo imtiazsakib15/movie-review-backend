@@ -62,4 +62,15 @@ export const authService = {
 
     return { user: toPublicUser(user), tokens };
   },
+
+  async getProfile(userId?: string): Promise<PublicUser> {
+    if (!userId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw ApiError.notFound("User not found");
+    }
+    return toPublicUser(user);
+  },
 };
