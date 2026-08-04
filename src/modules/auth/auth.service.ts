@@ -38,4 +38,28 @@ export const authService = {
 
     return { user: toPublicUser(user), tokens };
   },
+
+  async login(input: LoginInput): Promise<AuthResult> {
+    const user = await prisma.user.findUnique({
+      where: { email: input.email },
+    });
+    if (!user) {
+      throw ApiError.unauthorized("Invalid email or password");
+    }
+
+    const isPasswordValid = await comparePassword(
+      input.password,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw ApiError.unauthorized("Invalid email or password");
+    }
+
+    const tokens: AuthTokens = generateTokenPair({
+      sub: user.id,
+      role: user.role,
+    });
+
+    return { user: toPublicUser(user), tokens };
+  },
 };

@@ -8,4 +8,9 @@ export const authController = {
     const result = await authService.register(req.body);
     sendSuccess(res, 201, "Account created successfully", result);
   }),
+
+  login: catchAsync(async (req: Request, res: Response) => {
+    const result = await authService.login(req.body);
+    sendSuccess(res, 200, "Logged in successfully", result);
+  }),
 };
