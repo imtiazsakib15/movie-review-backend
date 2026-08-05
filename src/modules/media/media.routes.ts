@@ -10,6 +10,7 @@ import {
   listMediaQuerySchema,
   mediaIdParamSchema,
   mediaSlugParamSchema,
+  updateMediaSchema,
 } from "./media.validation";
 import { mediaController } from "./media.controller";
 
@@ -44,6 +45,14 @@ router.post(
   authorize("ADMIN"),
   validate({ body: createMediaSchema }),
   mediaController.create,
+);
+
+router.put(
+  "/:id",
+  authenticate,
+  authorize("ADMIN"),
+  validate({ params: mediaIdParamSchema, body: updateMediaSchema }),
+  mediaController.update,
 );
 
 export default router;

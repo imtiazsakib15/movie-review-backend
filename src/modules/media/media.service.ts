@@ -8,7 +8,11 @@ import {
 } from "../../utils/pagination";
 import { slugify } from "../../utils/slugify";
 import { MediaResponse, MediaWithGenres } from "./media.types";
-import { CreateMediaInput, ListMediaQuery } from "./media.validation";
+import {
+  CreateMediaInput,
+  ListMediaQuery,
+  UpdateMediaInput,
+} from "./media.validation";
 
 const toMediaResponse = (media: MediaWithGenres): MediaResponse => {
   const { mediaGenres, ...rest } = media;
@@ -154,5 +158,54 @@ export const mediaService = {
       throw ApiError.notFound("Media not found");
     }
     return toMediaResponse(media);
+  },
+
+  async update(id: string, input: UpdateMediaInput): Promise<MediaResponse> {
+    const existing = await prisma.media.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      throw ApiError.notFound("Media not found");
+    }
+
+    if (input.genreIds) {
+      await validateGenreIds(input.genreIds);
+    }
+
+    let slug: string | undefined;
+    if (input.slug || input.title) {
+      const baseSlug = slugify(input.slug ?? input.title ?? existing.title);
+      if (!baseSlug) {
+        throw ApiError.badRequest(
+          "Could not derive a valid slug from the title",
+        );
+      }
+      if (baseSlug !== existing.slug) {
+        slug = await ensureUniqueSlug(baseSlug, id);
+      }
+    }
+
+    const { genreIds, ...mediaData } = input;
+    const data = {
+      ...mediaData,
+      ...(slug ? { slug } : {}),
+    } satisfies Prisma.MediaUpdateInput;
+
+    const updated = await prisma.$transaction(async (tx) => {
+      if (genreIds !== undefined) {
+        await tx.mediaGenre.deleteMany({ where: { mediaId: id } });
+        if (genreIds.length) {
+          await tx.mediaGenre.createMany({
+            data: genreIds.map((genreId: string) => ({ mediaId: id, genreId })),
+          });
+        }
+      }
+
+      return tx.media.update({
+        where: { id },
+        data,
+        include: withGenresInclude,
+      });
+    });
+
+    return toMediaResponse(updated);
   },
 };

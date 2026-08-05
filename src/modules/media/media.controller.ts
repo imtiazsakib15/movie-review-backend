@@ -27,4 +27,9 @@ export const mediaController = {
     const media = await mediaService.getById(req.params.id, req.user?.role);
     sendSuccess(res, 200, "Media retrieved successfully", media);
   }),
+
+  update: catchAsync(async (req: Request, res: Response) => {
+    const media = await mediaService.update(req.params.id, req.body);
+    sendSuccess(res, 200, "Media updated successfully", media);
+  }),
 };
