@@ -52,6 +52,11 @@ export const listMediaQuerySchema = paginationSchema.extend({
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
+export const mediaSlugParamSchema = z.object({
+  slug: z.string().min(1),
+});
+
 export type CreateMediaInput = z.infer<typeof createMediaSchema>;
 export type UpdateMediaInput = z.infer<typeof updateMediaSchema>;
 export type ListMediaQuery = z.infer<typeof listMediaQuerySchema>;
+export type MediaSlugParam = z.infer<typeof mediaSlugParamSchema>;

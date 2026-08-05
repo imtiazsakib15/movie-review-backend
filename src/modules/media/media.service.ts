@@ -15,6 +15,12 @@ const toMediaResponse = (media: MediaWithGenres): MediaResponse => {
   return { ...rest, genres: mediaGenres.map((mg) => mg.genre) };
 };
 
+const withGenresInclude = {
+  mediaGenres: {
+    include: { genre: true },
+  },
+};
+
 const findBySlugExcludingId = (
   slug: string,
   excludeId?: string,
@@ -73,11 +79,7 @@ export const mediaService = {
             }
           : undefined,
       },
-      include: {
-        mediaGenres: {
-          include: { genre: true },
-        },
-      },
+      include: withGenresInclude,
     });
 
     return toMediaResponse(created);
@@ -115,11 +117,7 @@ export const mediaService = {
         orderBy,
         skip,
         take,
-        include: {
-          mediaGenres: {
-            include: { genre: true },
-          },
-        },
+        include: withGenresInclude,
       }),
       prisma.media.count({ where }),
     ]);
@@ -128,5 +126,20 @@ export const mediaService = {
       items: items.map(toMediaResponse),
       meta: buildPaginationMeta(query, total),
     };
+  },
+
+  async getBySlug(
+    slug: string,
+    requesterRole?: UserRole,
+  ): Promise<MediaResponse> {
+    const isAdmin = requesterRole === "ADMIN";
+    const media = await prisma.media.findUnique({
+      where: { slug },
+      include: withGenresInclude,
+    });
+    if (!media || media.deletedAt || (!isAdmin && !media.isPublished)) {
+      throw ApiError.notFound("Media not found");
+    }
+    return toMediaResponse(media);
   },
 };

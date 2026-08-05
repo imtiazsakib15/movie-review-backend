@@ -17,4 +17,9 @@ export const mediaController = {
     );
     sendSuccess(res, 200, "Media retrieved successfully", items, meta);
   }),
+
+  getBySlug: catchAsync(async (req: Request, res: Response) => {
+    const media = await mediaService.getBySlug(req.params.slug, req.user?.role);
+    sendSuccess(res, 200, "Media retrieved successfully", media);
+  }),
 };
