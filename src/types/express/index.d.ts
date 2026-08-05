@@ -1,9 +1,11 @@
-import { TDecodedUser } from "../auth";
+import { UserRole } from "../../../generated/prisma/enums";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: TDecodedUser;
+      user?: { id?: string; role?: UserRole };
     }
   }
 }
+
+export {};

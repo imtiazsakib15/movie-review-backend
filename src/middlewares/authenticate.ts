@@ -28,3 +28,24 @@ export const authenticate = (
     throw ApiError.unauthorized("Invalid access token");
   }
 };
+
+export const authenticateOptional = (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader?.startsWith("Bearer ")) {
+    return next();
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const payload = verifyToken(token, env.ACCESS_TOKEN_SECRET);
+    req.user = { id: payload.sub, role: payload.role };
+  } catch {}
+
+  next();
+};

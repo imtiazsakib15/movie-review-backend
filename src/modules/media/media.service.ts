@@ -90,6 +90,7 @@ export const mediaService = {
     requesterRole?: UserRole,
   ): Promise<{ items: MediaResponse[]; meta: PaginationMeta }> {
     const isAdmin = requesterRole === "ADMIN";
+
     const where: Prisma.MediaWhereInput = {
       deletedAt: null,
       ...(isAdmin ? {} : { isPublished: true }),
@@ -135,6 +136,18 @@ export const mediaService = {
     const isAdmin = requesterRole === "ADMIN";
     const media = await prisma.media.findUnique({
       where: { slug },
+      include: withGenresInclude,
+    });
+    if (!media || media.deletedAt || (!isAdmin && !media.isPublished)) {
+      throw ApiError.notFound("Media not found");
+    }
+    return toMediaResponse(media);
+  },
+
+  async getById(id: string, requesterRole?: UserRole): Promise<MediaResponse> {
+    const isAdmin = requesterRole === "ADMIN";
+    const media = await prisma.media.findUnique({
+      where: { id },
       include: withGenresInclude,
     });
     if (!media || media.deletedAt || (!isAdmin && !media.isPublished)) {

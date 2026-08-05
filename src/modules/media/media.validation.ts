@@ -41,8 +41,8 @@ export const createMediaSchema = z.object({
 export const updateMediaSchema = createMediaSchema.partial();
 
 export const listMediaQuerySchema = paginationSchema.extend({
-  type: z.nativeEnum(MediaType).optional(),
-  access: z.nativeEnum(MediaAccess).optional(),
+  type: z.enum(MediaType).optional(),
+  access: z.enum(MediaAccess).optional(),
   genreId: z.string().uuid().optional(),
   search: z.string().trim().min(1).max(255).optional(),
   isFeatured: z.coerce.boolean().optional(),
@@ -56,7 +56,12 @@ export const mediaSlugParamSchema = z.object({
   slug: z.string().min(1),
 });
 
+export const mediaIdParamSchema = z.object({
+  id: z.string().uuid("Invalid media id"),
+});
+
 export type CreateMediaInput = z.infer<typeof createMediaSchema>;
 export type UpdateMediaInput = z.infer<typeof updateMediaSchema>;
 export type ListMediaQuery = z.infer<typeof listMediaQuerySchema>;
 export type MediaSlugParam = z.infer<typeof mediaSlugParamSchema>;
+export type MediaIdParam = z.infer<typeof mediaIdParamSchema>;

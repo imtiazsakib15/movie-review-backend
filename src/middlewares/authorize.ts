@@ -9,7 +9,7 @@ export const authorize =
       throw ApiError.unauthorized("Authentication required");
     }
 
-    if (!allowedRoles.includes(req.user.role)) {
+    if (!allowedRoles.includes(req.user.role as UserRole)) {
       throw ApiError.forbidden(
         "You do not have permission to perform this action",
       );
