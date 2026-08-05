@@ -32,4 +32,9 @@ export const mediaController = {
     const media = await mediaService.update(req.params.id, req.body);
     sendSuccess(res, 200, "Media updated successfully", media);
   }),
+
+  remove: catchAsync(async (req: Request, res: Response) => {
+    await mediaService.remove(req.params.id);
+    sendSuccess(res, 200, "Media deleted successfully", null);
+  }),
 };

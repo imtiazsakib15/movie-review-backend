@@ -55,4 +55,12 @@ router.put(
   mediaController.update,
 );
 
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("ADMIN"),
+  validate({ params: mediaIdParamSchema }),
+  mediaController.remove,
+);
+
 export default router;

@@ -208,4 +208,15 @@ export const mediaService = {
 
     return toMediaResponse(updated);
   },
+
+  async remove(id: string): Promise<void> {
+    const existing = await prisma.media.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      throw ApiError.notFound("Media not found");
+    }
+    await prisma.media.update({
+      where: { id },
+      data: { deletedAt: new Date(), isPublished: false },
+    });
+  },
 };
