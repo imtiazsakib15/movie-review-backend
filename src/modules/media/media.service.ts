@@ -1,9 +1,14 @@
-import { Media, Prisma } from "../../../generated/prisma/client";
+import { Media, Prisma, UserRole } from "../../../generated/prisma/client";
 import { prisma } from "../../config/database";
 import { ApiError } from "../../errors/apiError";
+import {
+  buildPaginationMeta,
+  getPaginationParams,
+  PaginationMeta,
+} from "../../utils/pagination";
 import { slugify } from "../../utils/slugify";
 import { MediaResponse, MediaWithGenres } from "./media.types";
-import { CreateMediaInput } from "./media.validation";
+import { CreateMediaInput, ListMediaQuery } from "./media.validation";
 
 const toMediaResponse = (media: MediaWithGenres): MediaResponse => {
   const { mediaGenres, ...rest } = media;
@@ -76,5 +81,52 @@ export const mediaService = {
     });
 
     return toMediaResponse(created);
+  },
+
+  async list(
+    query: ListMediaQuery,
+    requesterRole?: UserRole,
+  ): Promise<{ items: MediaResponse[]; meta: PaginationMeta }> {
+    const isAdmin = requesterRole === "ADMIN";
+    const where: Prisma.MediaWhereInput = {
+      deletedAt: null,
+      ...(isAdmin ? {} : { isPublished: true }),
+      ...(query.type ? { type: query.type } : {}),
+      ...(query.access ? { access: query.access } : {}),
+      ...(query.isFeatured !== undefined
+        ? { isFeatured: query.isFeatured }
+        : {}),
+      ...(query.genreId
+        ? { mediaGenres: { some: { genreId: query.genreId } } }
+        : {}),
+      ...(query.search
+        ? { title: { contains: query.search, mode: "insensitive" } }
+        : {}),
+    };
+
+    const { skip, take } = getPaginationParams(query);
+    const orderBy: Prisma.MediaOrderByWithRelationInput = {
+      [query.sortBy]: query.sortOrder,
+    };
+
+    const [items, total] = await Promise.all([
+      prisma.media.findMany({
+        where,
+        orderBy,
+        skip,
+        take,
+        include: {
+          mediaGenres: {
+            include: { genre: true },
+          },
+        },
+      }),
+      prisma.media.count({ where }),
+    ]);
+
+    return {
+      items: items.map(toMediaResponse),
+      meta: buildPaginationMeta(query, total),
+    };
   },
 };

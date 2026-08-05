@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { MediaAccess, MediaType } from "../../../generated/prisma/client";
+import { paginationSchema } from "../../utils/pagination";
 
 const urlField = z
   .string()
@@ -39,5 +40,18 @@ export const createMediaSchema = z.object({
 
 export const updateMediaSchema = createMediaSchema.partial();
 
+export const listMediaQuerySchema = paginationSchema.extend({
+  type: z.nativeEnum(MediaType).optional(),
+  access: z.nativeEnum(MediaAccess).optional(),
+  genreId: z.string().uuid().optional(),
+  search: z.string().trim().min(1).max(255).optional(),
+  isFeatured: z.coerce.boolean().optional(),
+  sortBy: z
+    .enum(["createdAt", "releaseYear", "avgRating", "title"])
+    .default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
+
 export type CreateMediaInput = z.infer<typeof createMediaSchema>;
 export type UpdateMediaInput = z.infer<typeof updateMediaSchema>;
+export type ListMediaQuery = z.infer<typeof listMediaQuerySchema>;

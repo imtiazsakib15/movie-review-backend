@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { authenticate } from "../../middlewares/authenticate";
 import { authorize } from "../../middlewares/authorize";
-import { validate } from "../../middlewares/validateRequest";
-import { createMediaSchema } from "./media.validation";
+import { validate } from "../../middlewares/validate";
+import { createMediaSchema, listMediaQuerySchema } from "./media.validation";
 import { mediaController } from "./media.controller";
 
 const router = Router();
@@ -13,6 +13,12 @@ router.post(
   authorize("ADMIN"),
   validate({ body: createMediaSchema }),
   mediaController.create,
+);
+
+router.get(
+  "/",
+  validate({ query: listMediaQuerySchema }),
+  mediaController.list,
 );
 
 export default router;
