@@ -9,6 +9,7 @@ import {
   listModerationQuerySchema,
   listMyReviewsQuerySchema,
   listReviewsForMediaQuerySchema,
+  moderateReviewSchema,
   reviewIdParamSchema,
   reviewMediaIdParamSchema,
   updateReviewSchema,
@@ -67,6 +68,15 @@ router.patch(
   authenticate,
   validate({ params: reviewIdParamSchema, body: updateReviewSchema }),
   reviewController.update,
+);
+
+// Admin only — approve/reject, transactionally updates Media rating aggregates.
+router.patch(
+  "/:id/status",
+  authenticate,
+  authorize("ADMIN"),
+  validate({ params: reviewIdParamSchema, body: moderateReviewSchema }),
+  reviewController.updateStatus,
 );
 
 export default router;

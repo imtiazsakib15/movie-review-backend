@@ -21,8 +21,46 @@ import {
   ListModerationQuery,
   ListMyReviewsQuery,
   ListReviewsForMediaQuery,
+  ModerateReviewInput,
   UpdateReviewInput,
 } from "./review.validation";
+
+/** Rounds to 2 decimal places so avgRating doesn't drift into long floats. */
+const round2 = (value: number): number => Math.round(value * 100) / 100;
+
+/**
+ * Applies the rating delta for a single review joining or leaving the
+ * APPROVED pool. `sign` is +1 when a review becomes approved, -1 when an
+ * approved review is un-approved (rejected or deleted). Must run inside
+ * the same transaction as the Review status/deletedAt change it accompanies.
+ */
+
+const applyRatingDelta = async (
+  tx: Prisma.TransactionClient,
+  mediaId: string,
+  rating: number,
+  sign: 1 | -1,
+): Promise<void> => {
+  const media = await tx.media.findUniqueOrThrow({ where: { id: mediaId } });
+
+  const newRatingCount = media.ratingCount + sign;
+  const newAvgRating =
+    newRatingCount > 0
+      ? round2(
+          (media.avgRating * media.ratingCount + rating * sign) /
+            newRatingCount,
+        )
+      : 0;
+
+  await tx.media.update({
+    where: { id: mediaId },
+    data: {
+      ratingCount: newRatingCount,
+      avgRating: newAvgRating,
+      reviewCount: media.reviewCount + sign,
+    },
+  });
+};
 
 export const reviewService = {
   async create(
@@ -210,5 +248,38 @@ export const reviewService = {
     });
 
     return review;
+  },
+
+  async updateStatus(
+    id: string,
+    input: ModerateReviewInput,
+  ): Promise<ReviewWithAuthorAndMedia> {
+    const existing = await prisma.review.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      throw ApiError.notFound("Review not found");
+    }
+    if (existing.status === input.status) {
+      throw ApiError.badRequest(`Review is already ${input.status}`);
+    }
+
+    return prisma.$transaction(async (tx) => {
+      if (input.status === ReviewStatus.APPROVED) {
+        await applyRatingDelta(tx, existing.mediaId, existing.rating, 1);
+      } else if (existing.status === ReviewStatus.APPROVED) {
+        // Only REJECTED remains as a target; un-approving a previously
+        // approved review removes its rating from the aggregate.
+        await applyRatingDelta(tx, existing.mediaId, existing.rating, -1);
+      }
+
+      return tx.review.update({
+        where: { id },
+        data: {
+          status: input.status,
+          publishedAt:
+            input.status === ReviewStatus.APPROVED ? new Date() : null,
+        },
+        include: reviewWithAuthorAndMediaInclude,
+      });
+    });
   },
 };
