@@ -282,4 +282,43 @@ export const reviewService = {
       });
     });
   },
+
+  async remove(
+    id: string,
+    requesterId: string | undefined,
+    requesterRole: UserRole | undefined,
+  ): Promise<void> {
+    if (!requesterId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+
+    const existing = await prisma.review.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      throw ApiError.notFound("Review not found");
+    }
+
+    const isOwner = existing.userId === requesterId;
+    const isAdmin = requesterRole === UserRole.ADMIN;
+    if (!isOwner && !isAdmin) {
+      throw ApiError.forbidden(
+        "You do not have permission to delete this review",
+      );
+    }
+
+    if (existing.status === ReviewStatus.APPROVED) {
+      await prisma.$transaction(async (tx) => {
+        await applyRatingDelta(tx, existing.mediaId, existing.rating, -1);
+        await tx.review.update({
+          where: { id },
+          data: { deletedAt: new Date() },
+        });
+      });
+      return;
+    }
+
+    await prisma.review.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  },
 };

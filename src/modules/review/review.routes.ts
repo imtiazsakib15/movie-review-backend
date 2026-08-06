@@ -79,4 +79,12 @@ router.patch(
   reviewController.updateStatus,
 );
 
+// Author or admin — soft delete (ownership/role checked in service).
+router.delete(
+  "/:id",
+  authenticate,
+  validate({ params: reviewIdParamSchema }),
+  reviewController.remove,
+);
+
 export default router;

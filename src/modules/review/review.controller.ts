@@ -74,4 +74,9 @@ export const reviewController = {
     );
     sendSuccess(res, 200, `Review ${review.status.toLowerCase()}`, review);
   }),
+
+  remove: catchAsync(async (req: Request, res: Response) => {
+    await reviewService.remove(req.params.id, req.user?.id, req.user?.role);
+    sendSuccess(res, 200, "Review deleted successfully", null);
+  }),
 };
