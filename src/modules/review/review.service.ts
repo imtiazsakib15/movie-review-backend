@@ -1,7 +1,16 @@
+import { Prisma, ReviewStatus } from "../../../generated/prisma/client";
 import { prisma } from "../../config/database";
 import { ApiError } from "../../errors/apiError";
+import {
+  buildPaginationMeta,
+  getPaginationParams,
+  PaginationMeta,
+} from "../../utils/pagination";
 import { ReviewWithAuthor, reviewWithAuthorInclude } from "./review.types";
-import { CreateReviewInput } from "./review.validation";
+import {
+  CreateReviewInput,
+  ListReviewsForMediaQuery,
+} from "./review.validation";
 
 export const reviewService = {
   async create(
@@ -43,5 +52,35 @@ export const reviewService = {
     });
 
     return review;
+  },
+
+  async listForMedia(
+    mediaId: string,
+    query: ListReviewsForMediaQuery,
+  ): Promise<{ items: ReviewWithAuthor[]; meta: PaginationMeta }> {
+    const where: Prisma.ReviewWhereInput = {
+      mediaId,
+      status: ReviewStatus.APPROVED,
+      isPublished: true,
+      deletedAt: null,
+    };
+
+    const { skip, take } = getPaginationParams(query);
+    const orderBy: Prisma.ReviewOrderByWithRelationInput = {
+      [query.sortBy]: query.sortOrder,
+    };
+
+    const [items, total] = await Promise.all([
+      prisma.review.findMany({
+        where,
+        orderBy,
+        skip,
+        take,
+        include: reviewWithAuthorInclude,
+      }),
+      prisma.review.count({ where }),
+    ]);
+
+    return { items, meta: buildPaginationMeta(query, total) };
   },
 };

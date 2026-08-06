@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { authenticate } from "../../middlewares/authenticate";
 import { validate } from "../../middlewares/validate";
-import { createReviewSchema } from "./review.validation";
+import {
+  createReviewSchema,
+  listReviewsForMediaQuerySchema,
+  reviewMediaIdParamSchema,
+} from "./review.validation";
 import { reviewController } from "./review.controller";
 
 const router = Router();
@@ -12,6 +16,16 @@ router.post(
   authenticate,
   validate({ body: createReviewSchema }),
   reviewController.create,
+);
+
+// Public
+router.get(
+  "/media/:mediaId",
+  validate({
+    params: reviewMediaIdParamSchema,
+    query: listReviewsForMediaQuerySchema,
+  }),
+  reviewController.listForMedia,
 );
 
 export default router;
