@@ -112,10 +112,8 @@ model Review {
   mediaId     String       @db.Uuid @map("media_id")
   rating      Int
   content     String       @db.Text
-  tags        String[]     @default([])
   hasSpoiler  Boolean      @default(false) @map("has_spoiler")
   status      ReviewStatus @default(PENDING)
-  isPublished Boolean      @default(false) @map("is_published")
   publishedAt DateTime?    @map("published_at")
   deletedAt   DateTime?    @map("deleted_at")
   createdAt   DateTime     @default(now()) @map("created_at")
@@ -128,7 +126,6 @@ model Review {
   @@index([userId])
   @@index([mediaId])
   @@index([status])
-  @@index([isPublished])
   @@index([deletedAt])
   @@index([createdAt(sort: Desc)])
   @@index([rating])

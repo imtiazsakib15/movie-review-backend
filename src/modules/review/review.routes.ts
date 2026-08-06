@@ -3,11 +3,13 @@ import { authenticate } from "../../middlewares/authenticate";
 import { validate } from "../../middlewares/validate";
 import {
   createReviewSchema,
+  listModerationQuerySchema,
   listMyReviewsQuerySchema,
   listReviewsForMediaQuerySchema,
   reviewMediaIdParamSchema,
 } from "./review.validation";
 import { reviewController } from "./review.controller";
+import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
@@ -35,6 +37,15 @@ router.get(
   authenticate,
   validate({ query: listMyReviewsQuerySchema }),
   reviewController.listMine,
+);
+
+// Admin only — moderation queue, defaults to PENDING.
+router.get(
+  "/moderation",
+  authenticate,
+  authorize("ADMIN"),
+  validate({ query: listModerationQuerySchema }),
+  reviewController.listForModeration,
 );
 
 export default router;

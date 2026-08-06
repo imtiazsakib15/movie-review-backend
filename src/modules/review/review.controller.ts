@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catchAsync";
 import { reviewService } from "./review.service";
 import {
   CreateReviewInput,
+  ListModerationQuery,
   ListMyReviewsQuery,
   ListReviewsForMediaQuery,
 } from "./review.validation";
@@ -31,5 +32,18 @@ export const reviewController = {
       req.query as unknown as ListMyReviewsQuery,
     );
     sendSuccess(res, 200, "Your reviews retrieved successfully", items, meta);
+  }),
+
+  listForModeration: catchAsync(async (req: Request, res: Response) => {
+    const { items, meta } = await reviewService.listForModeration(
+      req.query as unknown as ListModerationQuery,
+    );
+    sendSuccess(
+      res,
+      200,
+      "Moderation queue retrieved successfully",
+      items,
+      meta,
+    );
   }),
 };

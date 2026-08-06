@@ -14,7 +14,6 @@ export const createReviewSchema = z.object({
     .trim()
     .min(10, "Review must be at least 10 characters")
     .max(5000),
-  tags: z.array(z.string().trim().min(1).max(30)).max(10).default([]),
   hasSpoiler: z.boolean().default(false),
 });
 
@@ -42,11 +41,11 @@ export const listReviewsForMediaQuerySchema = paginationSchema.extend({
 });
 
 export const listMyReviewsQuerySchema = paginationSchema.extend({
-  status: z.nativeEnum(ReviewStatus).optional(),
+  status: z.enum(ReviewStatus).optional(),
 });
 
 export const listModerationQuerySchema = paginationSchema.extend({
-  status: z.nativeEnum(ReviewStatus).default(ReviewStatus.PENDING),
+  status: z.enum(ReviewStatus).default(ReviewStatus.PENDING),
   mediaId: z.string().uuid().optional(),
 });
 

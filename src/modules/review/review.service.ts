@@ -14,6 +14,7 @@ import {
 } from "./review.types";
 import {
   CreateReviewInput,
+  ListModerationQuery,
   ListMyReviewsQuery,
   ListReviewsForMediaQuery,
 } from "./review.validation";
@@ -51,7 +52,6 @@ export const reviewService = {
         mediaId: input.mediaId,
         rating: input.rating,
         content: input.content,
-        tags: input.tags,
         hasSpoiler: input.hasSpoiler,
       },
       include: reviewWithAuthorInclude,
@@ -67,7 +67,6 @@ export const reviewService = {
     const where: Prisma.ReviewWhereInput = {
       mediaId,
       status: ReviewStatus.APPROVED,
-      isPublished: true,
       deletedAt: null,
     };
 
@@ -110,6 +109,31 @@ export const reviewService = {
       prisma.review.findMany({
         where,
         orderBy: { createdAt: "desc" },
+        skip,
+        take,
+        include: reviewWithAuthorAndMediaInclude,
+      }),
+      prisma.review.count({ where }),
+    ]);
+
+    return { items, meta: buildPaginationMeta(query, total) };
+  },
+
+  async listForModeration(
+    query: ListModerationQuery,
+  ): Promise<{ items: ReviewWithAuthorAndMedia[]; meta: PaginationMeta }> {
+    const where: Prisma.ReviewWhereInput = {
+      deletedAt: null,
+      status: query.status,
+      ...(query.mediaId ? { mediaId: query.mediaId } : {}),
+    };
+
+    const { skip, take } = getPaginationParams(query);
+
+    const [items, total] = await Promise.all([
+      prisma.review.findMany({
+        where,
+        orderBy: { createdAt: "asc" },
         skip,
         take,
         include: reviewWithAuthorAndMediaInclude,
