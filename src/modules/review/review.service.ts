@@ -1,4 +1,8 @@
-import { Prisma, ReviewStatus } from "../../../generated/prisma/client";
+import {
+  Prisma,
+  ReviewStatus,
+  UserRole,
+} from "../../../generated/prisma/client";
 import { prisma } from "../../config/database";
 import { ApiError } from "../../errors/apiError";
 import {
@@ -142,5 +146,30 @@ export const reviewService = {
     ]);
 
     return { items, meta: buildPaginationMeta(query, total) };
+  },
+
+  async getById(
+    id: string,
+    requesterId: string | undefined,
+    requesterRole: UserRole | undefined,
+  ): Promise<ReviewWithAuthorAndMedia> {
+    const review = await prisma.review.findUnique({
+      where: { id },
+      include: reviewWithAuthorAndMediaInclude,
+    });
+
+    if (!review || review.deletedAt) {
+      throw ApiError.notFound("Review not found");
+    }
+
+    const isVisibleToPublic = review.status === ReviewStatus.APPROVED;
+    const isOwner = review.userId === requesterId;
+    const isAdmin = requesterRole === UserRole.ADMIN;
+
+    if (!isVisibleToPublic && !isOwner && !isAdmin) {
+      throw ApiError.notFound("Review not found");
+    }
+
+    return review;
   },
 };

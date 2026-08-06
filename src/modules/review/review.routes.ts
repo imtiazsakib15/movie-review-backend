@@ -1,11 +1,15 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/authenticate";
+import {
+  authenticate,
+  authenticateOptional,
+} from "../../middlewares/authenticate";
 import { validate } from "../../middlewares/validate";
 import {
   createReviewSchema,
   listModerationQuerySchema,
   listMyReviewsQuerySchema,
   listReviewsForMediaQuerySchema,
+  reviewIdParamSchema,
   reviewMediaIdParamSchema,
 } from "./review.validation";
 import { reviewController } from "./review.controller";
@@ -46,6 +50,14 @@ router.get(
   authorize("ADMIN"),
   validate({ query: listModerationQuerySchema }),
   reviewController.listForModeration,
+);
+
+// Optional Authentication
+router.get(
+  "/:id",
+  authenticateOptional,
+  validate({ params: reviewIdParamSchema }),
+  reviewController.getById,
 );
 
 export default router;

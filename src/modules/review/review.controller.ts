@@ -46,4 +46,13 @@ export const reviewController = {
       meta,
     );
   }),
+
+  getById: catchAsync(async (req: Request, res: Response) => {
+    const review = await reviewService.getById(
+      req.params.id,
+      req.user?.id,
+      req.user?.role,
+    );
+    sendSuccess(res, 200, "Review retrieved successfully", review);
+  }),
 };
