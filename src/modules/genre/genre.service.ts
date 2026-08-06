@@ -47,4 +47,12 @@ export const genreService = {
   async list(): Promise<Genre[]> {
     return prisma.genre.findMany({ orderBy: { name: "asc" } });
   },
+
+  async getById(id: string): Promise<Genre> {
+    const genre = await prisma.genre.findUnique({ where: { id } });
+    if (!genre) {
+      throw ApiError.notFound("Genre not found");
+    }
+    return genre;
+  },
 };
