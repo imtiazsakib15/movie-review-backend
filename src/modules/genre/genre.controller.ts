@@ -8,4 +8,9 @@ export const genreController = {
     const genre = await genreService.create(req.body);
     sendSuccess(res, 201, "Genre created successfully", genre);
   }),
+
+  list: catchAsync(async (_req: Request, res: Response) => {
+    const genres = await genreService.list();
+    sendSuccess(res, 200, "Genres retrieved successfully", genres);
+  }),
 };

@@ -43,4 +43,8 @@ export const genreService = {
 
     return prisma.genre.create({ data: { name: input.name, slug } });
   },
+
+  async list(): Promise<Genre[]> {
+    return prisma.genre.findMany({ orderBy: { name: "asc" } });
+  },
 };

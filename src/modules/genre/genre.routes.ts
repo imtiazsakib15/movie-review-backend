@@ -7,6 +7,9 @@ import { genreController } from "./genre.controller";
 
 const router = Router();
 
+// Public
+router.get("/", genreController.list);
+
 // Admin-only
 router.post(
   "/",
