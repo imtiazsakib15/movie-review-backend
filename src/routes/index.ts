@@ -1,6 +1,7 @@
 import { Router } from "express";
 import AuthRoutes from "../modules/auth/auth.routes";
 import MediaRoutes from "../modules/media/media.routes";
+import GenreRoutes from "../modules/genre/genre.routes";
 
 interface ModuleRoute {
   path: string;
@@ -17,6 +18,10 @@ const moduleRoutes: ModuleRoute[] = [
   {
     path: "/media",
     route: MediaRoutes,
+  },
+  {
+    path: "/genres",
+    route: GenreRoutes,
   },
 ];
 
