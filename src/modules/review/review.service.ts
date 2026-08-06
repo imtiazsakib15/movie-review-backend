@@ -21,6 +21,7 @@ import {
   ListModerationQuery,
   ListMyReviewsQuery,
   ListReviewsForMediaQuery,
+  UpdateReviewInput,
 } from "./review.validation";
 
 export const reviewService = {
@@ -169,6 +170,44 @@ export const reviewService = {
     if (!isVisibleToPublic && !isOwner && !isAdmin) {
       throw ApiError.notFound("Review not found");
     }
+
+    return review;
+  },
+
+  async update(
+    id: string,
+    userId: string | undefined,
+    input: UpdateReviewInput,
+  ): Promise<ReviewWithAuthor> {
+    if (!userId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+
+    const existing = await prisma.review.findUnique({ where: { id } });
+    if (!existing || existing.deletedAt) {
+      throw ApiError.notFound("Review not found");
+    }
+    if (existing.userId !== userId) {
+      throw ApiError.forbidden("You can only edit your own reviews");
+    }
+    if (existing.status === ReviewStatus.APPROVED) {
+      throw ApiError.conflict(
+        "Approved reviews cannot be edited. Delete it and contact an admin if a correction is needed.",
+      );
+    }
+
+    // A previously-rejected review goes back into the moderation queue once
+    // the author edits and resubmits it.
+    const resubmitting = existing.status === ReviewStatus.REJECTED;
+
+    const review = await prisma.review.update({
+      where: { id },
+      data: {
+        ...input,
+        ...(resubmitting ? { status: ReviewStatus.PENDING } : {}),
+      },
+      include: reviewWithAuthorInclude,
+    });
 
     return review;
   },

@@ -11,6 +11,7 @@ import {
   listReviewsForMediaQuerySchema,
   reviewIdParamSchema,
   reviewMediaIdParamSchema,
+  updateReviewSchema,
 } from "./review.validation";
 import { reviewController } from "./review.controller";
 import { authorize } from "../../middlewares/authorize";
@@ -58,6 +59,14 @@ router.get(
   authenticateOptional,
   validate({ params: reviewIdParamSchema }),
   reviewController.getById,
+);
+
+// Author only — edit own review (blocked once APPROVED; ownership checked in service).
+router.patch(
+  "/:id",
+  authenticate,
+  validate({ params: reviewIdParamSchema, body: updateReviewSchema }),
+  reviewController.update,
 );
 
 export default router;

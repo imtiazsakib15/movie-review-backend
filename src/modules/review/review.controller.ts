@@ -6,6 +6,7 @@ import {
   ListModerationQuery,
   ListMyReviewsQuery,
   ListReviewsForMediaQuery,
+  UpdateReviewInput,
 } from "./review.validation";
 import { sendSuccess } from "../../utils/apiResponse";
 
@@ -54,5 +55,14 @@ export const reviewController = {
       req.user?.role,
     );
     sendSuccess(res, 200, "Review retrieved successfully", review);
+  }),
+
+  update: catchAsync(async (req: Request, res: Response) => {
+    const review = await reviewService.update(
+      req.params.id,
+      req.user?.id,
+      req.body as UpdateReviewInput,
+    );
+    sendSuccess(res, 200, "Review updated successfully", review);
   }),
 };
