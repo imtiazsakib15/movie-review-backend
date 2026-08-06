@@ -23,4 +23,9 @@ export const genreController = {
     const genre = await genreService.update(req.params.id, req.body);
     sendSuccess(res, 200, "Genre updated successfully", genre);
   }),
+
+  remove: catchAsync(async (req: Request, res: Response) => {
+    await genreService.remove(req.params.id);
+    sendSuccess(res, 200, "Genre deleted successfully", null);
+  }),
 };

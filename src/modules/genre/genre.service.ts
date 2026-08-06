@@ -92,4 +92,22 @@ export const genreService = {
       },
     });
   },
+
+  async remove(id: string): Promise<void> {
+    const existing = await prisma.genre.findUnique({ where: { id } });
+    if (!existing) {
+      throw ApiError.notFound("Genre not found");
+    }
+
+    const mediaCount = await prisma.mediaGenre.count({
+      where: { genreId: id },
+    });
+    if (mediaCount > 0) {
+      throw ApiError.conflict(
+        "This genre is still linked to media and cannot be deleted. Remove it from all media first.",
+      );
+    }
+
+    await prisma.genre.delete({ where: { id } });
+  },
 };

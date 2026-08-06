@@ -36,4 +36,12 @@ router.patch(
   genreController.update,
 );
 
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("ADMIN"),
+  validate({ params: genreIdParamSchema }),
+  genreController.remove,
+);
+
 export default router;
