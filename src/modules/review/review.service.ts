@@ -6,9 +6,15 @@ import {
   getPaginationParams,
   PaginationMeta,
 } from "../../utils/pagination";
-import { ReviewWithAuthor, reviewWithAuthorInclude } from "./review.types";
+import {
+  ReviewWithAuthor,
+  ReviewWithAuthorAndMedia,
+  reviewWithAuthorAndMediaInclude,
+  reviewWithAuthorInclude,
+} from "./review.types";
 import {
   CreateReviewInput,
+  ListMyReviewsQuery,
   ListReviewsForMediaQuery,
 } from "./review.validation";
 
@@ -77,6 +83,36 @@ export const reviewService = {
         skip,
         take,
         include: reviewWithAuthorInclude,
+      }),
+      prisma.review.count({ where }),
+    ]);
+
+    return { items, meta: buildPaginationMeta(query, total) };
+  },
+
+  async listMine(
+    userId: string | undefined,
+    query: ListMyReviewsQuery,
+  ): Promise<{ items: ReviewWithAuthorAndMedia[]; meta: PaginationMeta }> {
+    if (!userId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+
+    const where: Prisma.ReviewWhereInput = {
+      userId,
+      deletedAt: null,
+      ...(query.status ? { status: query.status } : {}),
+    };
+
+    const { skip, take } = getPaginationParams(query);
+
+    const [items, total] = await Promise.all([
+      prisma.review.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+        include: reviewWithAuthorAndMediaInclude,
       }),
       prisma.review.count({ where }),
     ]);

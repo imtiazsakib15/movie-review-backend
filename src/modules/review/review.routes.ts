@@ -3,6 +3,7 @@ import { authenticate } from "../../middlewares/authenticate";
 import { validate } from "../../middlewares/validate";
 import {
   createReviewSchema,
+  listMyReviewsQuerySchema,
   listReviewsForMediaQuerySchema,
   reviewMediaIdParamSchema,
 } from "./review.validation";
@@ -26,6 +27,14 @@ router.get(
     query: listReviewsForMediaQuerySchema,
   }),
   reviewController.listForMedia,
+);
+
+// Auth required — the current user's own reviews, any status.
+router.get(
+  "/mine",
+  authenticate,
+  validate({ query: listMyReviewsQuerySchema }),
+  reviewController.listMine,
 );
 
 export default router;

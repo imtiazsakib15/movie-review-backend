@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catchAsync";
 import { reviewService } from "./review.service";
 import {
   CreateReviewInput,
+  ListMyReviewsQuery,
   ListReviewsForMediaQuery,
 } from "./review.validation";
 import { sendSuccess } from "../../utils/apiResponse";
@@ -22,5 +23,13 @@ export const reviewController = {
       req.query as unknown as ListReviewsForMediaQuery,
     );
     sendSuccess(res, 200, "Reviews retrieved successfully", items, meta);
+  }),
+
+  listMine: catchAsync(async (req: Request, res: Response) => {
+    const { items, meta } = await reviewService.listMine(
+      req.user?.id,
+      req.query as unknown as ListMyReviewsQuery,
+    );
+    sendSuccess(res, 200, "Your reviews retrieved successfully", items, meta);
   }),
 };
