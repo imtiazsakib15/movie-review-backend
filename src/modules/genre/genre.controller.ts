@@ -18,4 +18,9 @@ export const genreController = {
     const genre = await genreService.getById(req.params.id);
     sendSuccess(res, 200, "Genre retrieved successfully", genre);
   }),
+
+  update: catchAsync(async (req: Request, res: Response) => {
+    const genre = await genreService.update(req.params.id, req.body);
+    sendSuccess(res, 200, "Genre updated successfully", genre);
+  }),
 };

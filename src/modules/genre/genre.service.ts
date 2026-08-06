@@ -2,7 +2,7 @@ import { Genre } from "../../../generated/prisma/client";
 import { prisma } from "../../config/database";
 import { ApiError } from "../../errors/apiError";
 import { slugify } from "../../utils/slugify";
-import { CreateGenreInput } from "./genre.validation";
+import { CreateGenreInput, UpdateGenreInput } from "./genre.validation";
 
 const ensureUniqueSlug = async (
   baseSlug: string,
@@ -54,5 +54,42 @@ export const genreService = {
       throw ApiError.notFound("Genre not found");
     }
     return genre;
+  },
+
+  async update(id: string, input: UpdateGenreInput): Promise<Genre> {
+    const existing = await prisma.genre.findUnique({ where: { id } });
+    if (!existing) {
+      throw ApiError.notFound("Genre not found");
+    }
+
+    if (input.name && input.name !== existing.name) {
+      const nameTaken = await prisma.genre.findFirst({
+        where: { name: input.name, id: { not: id } },
+      });
+      if (nameTaken) {
+        throw ApiError.conflict("A genre with this name already exists");
+      }
+    }
+
+    let slug: string | undefined;
+    if (input.slug || input.name) {
+      const baseSlug = slugify(input.slug ?? input.name ?? existing.name);
+      if (!baseSlug) {
+        throw ApiError.badRequest(
+          "Could not derive a valid slug from the name",
+        );
+      }
+      if (baseSlug !== existing.slug) {
+        slug = await ensureUniqueSlug(baseSlug, id);
+      }
+    }
+
+    return prisma.genre.update({
+      where: { id },
+      data: {
+        ...(input.name ? { name: input.name } : {}),
+        ...(slug ? { slug } : {}),
+      },
+    });
   },
 };

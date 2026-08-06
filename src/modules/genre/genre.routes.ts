@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { authenticate } from "../../middlewares/authenticate";
 import { authorize } from "../../middlewares/authorize";
-import { createGenreSchema, genreIdParamSchema } from "./genre.validation";
+import {
+  createGenreSchema,
+  genreIdParamSchema,
+  updateGenreSchema,
+} from "./genre.validation";
 import { validate } from "../../middlewares/validate";
 import { genreController } from "./genre.controller";
 
@@ -22,6 +26,14 @@ router.post(
   authorize("ADMIN"),
   validate({ body: createGenreSchema }),
   genreController.create,
+);
+
+router.patch(
+  "/:id",
+  authenticate,
+  authorize("ADMIN"),
+  validate({ params: genreIdParamSchema, body: updateGenreSchema }),
+  genreController.update,
 );
 
 export default router;
