@@ -3,6 +3,7 @@ import AuthRoutes from "../modules/auth/auth.routes";
 import MediaRoutes from "../modules/media/media.routes";
 import GenreRoutes from "../modules/genre/genre.routes";
 import ReviewRoutes from "../modules/review/review.routes";
+import WatchlistRoutes from "../modules/watchlist/watchlist.routes";
 
 interface ModuleRoute {
   path: string;
@@ -27,6 +28,10 @@ const moduleRoutes: ModuleRoute[] = [
   {
     path: "/reviews",
     route: ReviewRoutes,
+  },
+  {
+    path: "/watchlist",
+    route: WatchlistRoutes,
   },
 ];
 
