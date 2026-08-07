@@ -23,4 +23,9 @@ export const watchlistController = {
     );
     sendSuccess(res, 200, "Watchlist retrieved successfully", items, meta);
   }),
+
+  remove: catchAsync(async (req: Request, res: Response) => {
+    await watchlistService.remove(req.user?.id, req.params.mediaId);
+    sendSuccess(res, 200, "Removed from watchlist", null);
+  }),
 };

@@ -76,4 +76,21 @@ export const watchlistService = {
 
     return { items, meta: buildPaginationMeta(query, total) };
   },
+
+  async remove(userId: string | undefined, mediaId: string): Promise<void> {
+    if (!userId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+
+    const existing = await prisma.watchlist.findUnique({
+      where: { userId_mediaId: { userId, mediaId } },
+    });
+    if (!existing) {
+      throw ApiError.notFound("This media is not in your watchlist");
+    }
+
+    await prisma.watchlist.delete({
+      where: { userId_mediaId: { userId, mediaId } },
+    });
+  },
 };

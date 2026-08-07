@@ -4,6 +4,7 @@ import { validate } from "../../middlewares/validate";
 import {
   addToWatchlistSchema,
   listWatchlistQuerySchema,
+  watchlistMediaIdParamSchema,
 } from "./watchlist.validation";
 import { watchlistController } from "./watchlist.controller";
 
@@ -21,6 +22,13 @@ router.get(
   authenticate,
   validate({ query: listWatchlistQuerySchema }),
   watchlistController.list,
+);
+
+router.delete(
+  "/:mediaId",
+  authenticate,
+  validate({ params: watchlistMediaIdParamSchema }),
+  watchlistController.remove,
 );
 
 export default router;
