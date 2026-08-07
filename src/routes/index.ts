@@ -4,6 +4,7 @@ import MediaRoutes from "../modules/media/media.routes";
 import GenreRoutes from "../modules/genre/genre.routes";
 import ReviewRoutes from "../modules/review/review.routes";
 import WatchlistRoutes from "../modules/watchlist/watchlist.routes";
+import CompletedMediaRoutes from "../modules/completed-media/completed-media.routes";
 
 interface ModuleRoute {
   path: string;
@@ -32,6 +33,10 @@ const moduleRoutes: ModuleRoute[] = [
   {
     path: "/watchlist",
     route: WatchlistRoutes,
+  },
+  {
+    path: "/completed",
+    route: CompletedMediaRoutes,
   },
 ];
 
