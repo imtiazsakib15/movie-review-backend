@@ -4,7 +4,9 @@ import {
   UserRole,
 } from "../../../generated/prisma/enums";
 import { prisma } from "../../config/database";
-import { DashboardStats } from "./admin.types";
+import { mediaSummarySelect } from "../media/media.types";
+import { reviewWithAuthorAndMediaInclude } from "../review/review.types";
+import { DashboardStats, RecentActivity } from "./admin.types";
 
 export const adminService = {
   async getStats(): Promise<DashboardStats> {
@@ -69,5 +71,35 @@ export const adminService = {
       watchlist: { totalEntries: totalWatchlistEntries },
       completedMedia: { totalEntries: totalCompletedEntries },
     };
+  },
+
+  async getRecentActivity(limit: number): Promise<RecentActivity> {
+    const [pendingReviews, recentUsers, recentMedia] = await Promise.all([
+      prisma.review.findMany({
+        where: { deletedAt: null, status: ReviewStatus.PENDING },
+        orderBy: { createdAt: "asc" },
+        take: limit,
+        include: reviewWithAuthorAndMediaInclude,
+      }),
+      prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      }),
+      prisma.media.findMany({
+        where: { deletedAt: null },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        select: mediaSummarySelect,
+      }),
+    ]);
+
+    return { pendingReviews, recentUsers, recentMedia };
   },
 };

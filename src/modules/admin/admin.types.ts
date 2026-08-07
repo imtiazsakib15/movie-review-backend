@@ -24,7 +24,7 @@ export interface DashboardStats {
 
 export interface RecentUserSummary {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
   role: UserRole;
   createdAt: Date;
