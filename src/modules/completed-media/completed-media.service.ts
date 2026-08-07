@@ -76,4 +76,21 @@ export const completedMediaService = {
 
     return { items, meta: buildPaginationMeta(query, total) };
   },
+
+  async remove(userId: string | undefined, mediaId: string): Promise<void> {
+    if (!userId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+
+    const existing = await prisma.completedMedia.findUnique({
+      where: { userId_mediaId: { userId, mediaId } },
+    });
+    if (!existing) {
+      throw ApiError.notFound("This media is not marked as completed");
+    }
+
+    await prisma.completedMedia.delete({
+      where: { userId_mediaId: { userId, mediaId } },
+    });
+  },
 };

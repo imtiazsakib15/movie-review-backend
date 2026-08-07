@@ -29,4 +29,9 @@ export const completedMediaController = {
       meta,
     );
   }),
+
+  remove: catchAsync(async (req: Request, res: Response) => {
+    await completedMediaService.remove(req.user?.id, req.params.mediaId);
+    sendSuccess(res, 200, "Removed from completed media", null);
+  }),
 };

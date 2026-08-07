@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/authenticate";
 import { validate } from "../../middlewares/validate";
 import {
+  completedMediaIdParamSchema,
   listCompletedMediaQuerySchema,
   markCompletedSchema,
 } from "./completed-media.validation";
@@ -21,6 +22,13 @@ router.get(
   authenticate,
   validate({ query: listCompletedMediaQuerySchema }),
   completedMediaController.list,
+);
+
+router.delete(
+  "/:mediaId",
+  authenticate,
+  validate({ params: completedMediaIdParamSchema }),
+  completedMediaController.remove,
 );
 
 export default router;
