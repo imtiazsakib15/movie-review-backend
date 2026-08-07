@@ -1,7 +1,15 @@
 import { prisma } from "../../config/database";
 import { ApiError } from "../../errors/apiError";
+import {
+  buildPaginationMeta,
+  getPaginationParams,
+  PaginationMeta,
+} from "../../utils/pagination";
 import { MediaSummary, mediaSummarySelect } from "../media/media.types";
-import { MarkCompletedInput } from "./completed-media.validation";
+import {
+  ListCompletedMediaQuery,
+  MarkCompletedInput,
+} from "./completed-media.validation";
 
 export interface CompletedMediaEntry {
   mediaId: string;
@@ -42,5 +50,30 @@ export const completedMediaService = {
       data: { userId, mediaId: input.mediaId },
       select: completedMediaEntrySelect,
     });
+  },
+
+  async list(
+    userId: string | undefined,
+    query: ListCompletedMediaQuery,
+  ): Promise<{ items: CompletedMediaEntry[]; meta: PaginationMeta }> {
+    if (!userId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+
+    const where = { userId };
+    const { skip, take } = getPaginationParams(query);
+
+    const [items, total] = await Promise.all([
+      prisma.completedMedia.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+        select: completedMediaEntrySelect,
+      }),
+      prisma.completedMedia.count({ where }),
+    ]);
+
+    return { items, meta: buildPaginationMeta(query, total) };
   },
 };
