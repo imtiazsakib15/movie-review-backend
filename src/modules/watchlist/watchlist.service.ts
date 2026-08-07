@@ -1,7 +1,15 @@
 import { prisma } from "../../config/database";
 import { ApiError } from "../../errors/apiError";
+import {
+  buildPaginationMeta,
+  getPaginationParams,
+  PaginationMeta,
+} from "../../utils/pagination";
 import { MediaSummary, mediaSummarySelect } from "../media/media.types";
-import { AddToWatchlistInput } from "./watchlist.validation";
+import {
+  AddToWatchlistInput,
+  ListWatchlistQuery,
+} from "./watchlist.validation";
 
 export interface WatchlistEntry {
   mediaId: string;
@@ -42,5 +50,30 @@ export const watchlistService = {
       data: { userId, mediaId: input.mediaId },
       select: watchlistEntrySelect,
     });
+  },
+
+  async list(
+    userId: string | undefined,
+    query: ListWatchlistQuery,
+  ): Promise<{ items: WatchlistEntry[]; meta: PaginationMeta }> {
+    if (!userId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+
+    const where = { userId };
+    const { skip, take } = getPaginationParams(query);
+
+    const [items, total] = await Promise.all([
+      prisma.watchlist.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+        select: watchlistEntrySelect,
+      }),
+      prisma.watchlist.count({ where }),
+    ]);
+
+    return { items, meta: buildPaginationMeta(query, total) };
   },
 };
