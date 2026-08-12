@@ -56,4 +56,26 @@ export const authController = {
     const user = await authService.getProfile(req.user?.id);
     sendSuccess(res, 200, "Profile retrieved successfully", user);
   }),
+
+  logout: catchAsync(async (_req: Request, res: Response) => {
+    const isProduction = env.NODE_ENV === "production";
+
+    res
+      .clearCookie("accessToken", {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
+      })
+      .clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
+      })
+      .status(200)
+      .json({
+        success: true,
+        message: "Logged out successfully",
+        data: null,
+      });
+  }),
 };
