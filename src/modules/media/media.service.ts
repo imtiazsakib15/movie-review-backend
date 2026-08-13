@@ -106,11 +106,13 @@ export const mediaService = {
       ...(query.isFeatured !== undefined
         ? { isFeatured: query.isFeatured }
         : {}),
-      ...(query.genreId
+      ...(query.genre
         ? {
             mediaGenres: {
               some: {
-                genreId: query.genreId,
+                genre: {
+                  slug: query.genre,
+                },
               },
             },
           }

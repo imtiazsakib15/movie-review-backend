@@ -64,7 +64,7 @@ export const updateMediaSchema = createMediaSchema.partial();
 export const listMediaQuerySchema = paginationSchema.extend({
   type: z.enum(MediaType).optional(),
   access: z.enum(MediaAccess).optional(),
-  genreId: z.string().uuid("Invalid genre id").optional(),
+  genre: z.string().trim().toLowerCase().optional(),
   search: z
     .string()
     .trim()
