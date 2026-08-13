@@ -9,17 +9,20 @@ export const authenticate = (
   _res: Response,
   next: NextFunction,
 ): void => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies?.accessToken;
 
-  if (!authHeader?.startsWith("Bearer ")) {
-    throw ApiError.unauthorized("Missing or malformed Authorization header");
+  if (!token) {
+    throw ApiError.unauthorized("Authentication required");
   }
-
-  const token = authHeader.split(" ")[1];
 
   try {
     const payload = verifyToken(token, env.ACCESS_TOKEN_SECRET);
-    req.user = { id: payload.sub, role: payload.role };
+
+    req.user = {
+      id: payload.sub,
+      role: payload.role,
+    };
+
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
@@ -34,17 +37,19 @@ export const authenticateOptional = (
   _res: Response,
   next: NextFunction,
 ): void => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies?.accessToken;
 
-  if (!authHeader?.startsWith("Bearer ")) {
+  if (!token) {
     return next();
   }
 
-  const token = authHeader.split(" ")[1];
-
   try {
     const payload = verifyToken(token, env.ACCESS_TOKEN_SECRET);
-    req.user = { id: payload.sub, role: payload.role };
+
+    req.user = {
+      id: payload.sub,
+      role: payload.role,
+    };
   } catch {}
 
   next();
