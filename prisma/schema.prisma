@@ -63,7 +63,10 @@ model Media {
   slug           String      @unique @db.VarChar(300)
   type           MediaType
   access         MediaAccess @default(FREE)
+  description    String?     @db.Text
   releaseYear    Int         @map("release_year")
+  runtimeMinutes Int?        @map("runtime_minutes")
+  language       String?     @db.VarChar(100)
   posterUrl      String?     @map("poster_url") @db.VarChar(500)
   trailerUrl     String?     @map("trailer_url") @db.VarChar(500)
   streamingUrl   String?     @map("streaming_url") @db.VarChar(500)
