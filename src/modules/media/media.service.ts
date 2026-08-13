@@ -100,11 +100,20 @@ export const mediaService = {
       ...(isAdmin ? {} : { isPublished: true }),
       ...(query.type ? { type: query.type } : {}),
       ...(query.access ? { access: query.access } : {}),
+      ...(query.releaseYear !== undefined
+        ? { releaseYear: query.releaseYear }
+        : {}),
       ...(query.isFeatured !== undefined
         ? { isFeatured: query.isFeatured }
         : {}),
       ...(query.genreId
-        ? { mediaGenres: { some: { genreId: query.genreId } } }
+        ? {
+            mediaGenres: {
+              some: {
+                genreId: query.genreId,
+              },
+            },
+          }
         : {}),
       ...(query.search
         ? { title: { contains: query.search, mode: "insensitive" } }

@@ -45,6 +45,12 @@ export const listMediaQuerySchema = paginationSchema.extend({
   access: z.enum(MediaAccess).optional(),
   genreId: z.string().uuid().optional(),
   search: z.string().trim().min(1).max(255).optional(),
+  releaseYear: z.coerce
+    .number()
+    .int()
+    .min(1888)
+    .max(new Date().getFullYear() + 5)
+    .optional(),
   isFeatured: z.coerce.boolean().optional(),
   sortBy: z
     .enum(["createdAt", "releaseYear", "avgRating", "title"])
