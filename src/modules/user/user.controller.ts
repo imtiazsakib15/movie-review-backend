@@ -11,4 +11,9 @@ export const userController = {
     );
     sendSuccess(res, 200, "Users retrieved successfully", items, meta);
   }),
+
+  getById: catchAsync(async (req: Request, res: Response) => {
+    const user = await userService.getById(req.params.id);
+    sendSuccess(res, 200, "User retrieved successfully", user);
+  }),
 };

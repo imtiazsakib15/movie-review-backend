@@ -59,4 +59,15 @@ export const userService = {
       meta: buildPaginationMeta(query, total),
     };
   },
+
+  async getById(id: string): Promise<UserWithActivityCounts> {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: userActivityCountsInclude,
+    });
+    if (!user) {
+      throw ApiError.notFound("User not found");
+    }
+    return toPublicUserWithCounts(user);
+  },
 };

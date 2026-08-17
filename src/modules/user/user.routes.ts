@@ -14,5 +14,10 @@ const router = Router();
 router.use(authenticate, authorize("ADMIN"));
 
 router.get("/", validate({ query: listUsersQuerySchema }), userController.list);
+router.get(
+  "/:id",
+  validate({ params: userIdParamSchema }),
+  userController.getById,
+);
 
 export default router;
