@@ -16,4 +16,13 @@ export const userController = {
     const user = await userService.getById(req.params.id);
     sendSuccess(res, 200, "User retrieved successfully", user);
   }),
+
+  updateRole: catchAsync(async (req: Request, res: Response) => {
+    const user = await userService.updateRole(
+      req.params.id,
+      req.user?.id,
+      req.body as UpdateUserRoleInput,
+    );
+    sendSuccess(res, 200, "User role updated successfully", user);
+  }),
 };

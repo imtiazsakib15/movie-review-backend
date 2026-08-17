@@ -70,4 +70,31 @@ export const userService = {
     }
     return toPublicUserWithCounts(user);
   },
+
+  async updateRole(
+    id: string,
+    requesterId: string | undefined,
+    input: UpdateUserRoleInput,
+  ): Promise<PublicUser> {
+    if (!requesterId) {
+      throw ApiError.unauthorized("Authentication required");
+    }
+    if (id === requesterId) {
+      throw ApiError.badRequest("You cannot change your own role");
+    }
+
+    const existing = await prisma.user.findUnique({ where: { id } });
+    if (!existing) {
+      throw ApiError.notFound("User not found");
+    }
+    if (existing.role === input.role) {
+      throw ApiError.badRequest(`User is already ${input.role}`);
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { role: input.role },
+    });
+    return toPublicUser(updated);
+  },
 };

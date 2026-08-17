@@ -19,5 +19,10 @@ router.get(
   validate({ params: userIdParamSchema }),
   userController.getById,
 );
+router.patch(
+  "/:id/role",
+  validate({ params: userIdParamSchema, body: updateUserRoleSchema }),
+  userController.updateRole,
+);
 
 export default router;
