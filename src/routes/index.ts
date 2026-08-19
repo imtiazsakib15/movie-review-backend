@@ -6,6 +6,8 @@ import ReviewRoutes from "../modules/review/review.routes";
 import WatchlistRoutes from "../modules/watchlist/watchlist.routes";
 import CompletedMediaRoutes from "../modules/completed-media/completed-media.routes";
 import AdminRoutes from "../modules/admin/admin.routes";
+import UserRoutes from "../modules/user/user.routes";
+import ProfileRoutes from "../modules/profile/profile.routes";
 
 interface ModuleRoute {
   path: string;
@@ -42,6 +44,14 @@ const moduleRoutes: ModuleRoute[] = [
   {
     path: "/admin/dashboard",
     route: AdminRoutes,
+  },
+  {
+    path: "/admin/users",
+    route: UserRoutes,
+  },
+  {
+    path: "/profile",
+    route: ProfileRoutes,
   },
 ];
 
