@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import notFound from "./middlewares/notFound";
 import helmet from "helmet";
 import { env } from "./config/env";
+import { requestLogger } from "./middlewares/requestLogger";
 
 const app = express();
 
@@ -19,6 +20,8 @@ app.use(
   }),
 );
 app.use(express.urlencoded({ extended: true }));
+
+app.use(requestLogger);
 
 app.use("/api/v1", router);
 

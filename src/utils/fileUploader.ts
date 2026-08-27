@@ -1,8 +1,8 @@
 import httpStatus from "http-status";
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
-import {env} from "../config/env";
-import { AppError } from "../errors/apiError";
+import { env } from "../config/env";
+import { ApiError } from "../errors/apiError";
 import fs from "fs/promises";
 import path from "path";
 
@@ -28,13 +28,7 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(
-      new AppError(
-        httpStatus.BAD_REQUEST,
-        "Only PDF and image files are allowed!"
-      ),
-      false
-    );
+    cb(ApiError.badRequest("Only PDF and image files are allowed!"), false);
   }
 };
 

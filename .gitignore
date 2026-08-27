@@ -4,5 +4,6 @@ node_modules
 
 /uploads
 .vercel
-dist
+/dist
 /generated/prisma
+logs
