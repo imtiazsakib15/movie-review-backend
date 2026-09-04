@@ -8,6 +8,7 @@ import CompletedMediaRoutes from "../modules/completed-media/completed-media.rou
 import AdminRoutes from "../modules/admin/admin.routes";
 import UserRoutes from "../modules/user/user.routes";
 import ProfileRoutes from "../modules/profile/profile.routes";
+import RagRoutes from "../modules/rag/rag.routes";
 
 interface ModuleRoute {
   path: string;
@@ -52,6 +53,10 @@ const moduleRoutes: ModuleRoute[] = [
   {
     path: "/profile",
     route: ProfileRoutes,
+  },
+  {
+    path: "/rag",
+    route: RagRoutes,
   },
 ];
 

@@ -10,12 +10,7 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
 
-  SALT_ROUNDS: z.coerce
-    .number()
-    .int()
-    .min(4)
-    .max(15)
-    .default(10),
+  SALT_ROUNDS: z.coerce.number().int().min(4).max(15).default(10),
 
   ACCESS_TOKEN_SECRET: z
     .string()
@@ -33,9 +28,7 @@ const envSchema = z.object({
 
   CLOUDINARY_API_KEY: z.string().min(1, "CLOUDINARY_API_KEY is required"),
 
-  CLOUDINARY_API_SECRET: z
-    .string()
-    .min(1, "CLOUDINARY_API_SECRET is required"),
+  CLOUDINARY_API_SECRET: z.string().min(1, "CLOUDINARY_API_SECRET is required"),
 
   EMAIL_HOST: z.string().min(1, "EMAIL_HOST is required"),
 
@@ -45,10 +38,12 @@ const envSchema = z.object({
 
   EMAIL_PASS: z.string().min(1, "EMAIL_PASS is required"),
 
-  CLIENT_URL: z
+  CLIENT_URL: z.string().url().default("http://localhost:3000"),
+  OPENROUTER_API_KEY: z.string().min(1, "OPENROUTER_API_KEY is required"),
+  OPENROUTER_EMBEDDING_MODEL: z
     .string()
-    .url()
-    .default("http://localhost:3000"),
+    .min(1, "OPENROUTER_EMBEDDING_MODEL is required"),
+  OPENROUTER_LLM_MODEL: z.string().min(1, "OPENROUTER_LLM_MODEL is required"),
 });
 
 const parsed = envSchema.safeParse(process.env);
