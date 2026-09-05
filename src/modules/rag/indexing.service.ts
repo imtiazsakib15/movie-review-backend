@@ -2,7 +2,7 @@ import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../config/database";
 import { EmbeddingService } from "./embedding.service";
 
-const toVectorLiteral = (vector: number[]): string => `[$v{vector.join(", ")}]`;
+const toVectorLiteral = (vector: number[]): string => `[${vector.join(", ")}]`;
 
 export class IndexingService {
   private embeddingService: EmbeddingService;
@@ -25,14 +25,23 @@ export class IndexingService {
 
       await prisma.$executeRaw(Prisma.sql`
         INSERT INTO "document_embeddings" ("chunkKey", "sourceType", "sourceId", "sourceLabel", "content", "metadata", "embedding")
-        VALUES (${chunkKey}, ${sourceType}, ${sourceId}, ${sourceLabel}, ${content}, ${JSON.stringify(metadata || {})} :: jsonb, CAST(${vectorLiteral}) AS vector) ON CONFLICT ("chunkKey") DO UPDATE SET
-        "sourceType" = EXCLUDED."sourceType",
-        "sourceId" = EXCLUDED."sourceId",
-        "sourceLabel" = EXCLUDED."sourceLabel",
-        "content" = EXCLUDED."content",
-        "metadata" = EXCLUDED."metadata",
-        "embedding" = EXCLUDED."embedding";
-        `);
+        VALUES (
+          ${chunkKey}, 
+          ${sourceType}, 
+          ${sourceId}, 
+          ${sourceLabel}, 
+          ${content}, 
+          ${metadata}::jsonb, 
+          ${vectorLiteral}::vector
+        ) 
+        ON CONFLICT ("chunkKey") DO UPDATE SET
+          "sourceType" = EXCLUDED."sourceType",
+          "sourceId" = EXCLUDED."sourceId",
+          "sourceLabel" = EXCLUDED."sourceLabel",
+          "content" = EXCLUDED."content",
+          "metadata" = EXCLUDED."metadata",
+          "embedding" = EXCLUDED."embedding"
+      `);
     } catch (error) {
       console.error(
         `Error indexing document with chunkKey ${chunkKey}:`,

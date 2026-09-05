@@ -29,6 +29,12 @@ export class EmbeddingService {
       }
 
       const data = await response.json();
+
+      if (!data.data?.[0]?.embedding) {
+        throw new Error(
+          "Invalid embedding response structure received from provider.",
+        );
+      }
       return data.data[0].embedding;
     } catch (error) {
       console.error("Error generating embedding:", error);
