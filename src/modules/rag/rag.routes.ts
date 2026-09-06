@@ -9,4 +9,6 @@ router.use(authenticate, authorize("ADMIN"));
 
 router.post("/ingest-all-media", ragController.ingestAllMedia);
 
+router.post("/query", ragController.mediaQuery);
+
 export default router;

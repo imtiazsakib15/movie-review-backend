@@ -7,23 +7,29 @@ export class ApiError extends Error {
     Object.setPrototypeOf(this, ApiError.prototype);
     Error.captureStackTrace(this, this.constructor);
   }
-  static badRequest(message = 'Bad request'): ApiError {
+  static badRequest(message = "Bad request"): ApiError {
     return new ApiError(400, message);
   }
-  static unauthorized(message = 'Unauthorized'): ApiError {
+  static unauthorized(message = "Unauthorized"): ApiError {
     return new ApiError(401, message);
   }
-  static forbidden(message = 'Forbidden'): ApiError {
+  static forbidden(message = "Forbidden"): ApiError {
     return new ApiError(403, message);
   }
-  static notFound(message = 'Not found'): ApiError {
+  static notFound(message = "Not found"): ApiError {
     return new ApiError(404, message);
   }
-  static conflict(message = 'Conflict'): ApiError {
+  static conflict(message = "Conflict"): ApiError {
     return new ApiError(409, message);
   }
 
-  static internal(message = 'Internal server error') {
+  static internal(message = "Internal server error") {
     return new ApiError(500, message);
+  }
+  static badGateway(message = "Bad gateway") {
+    return new ApiError(502, message);
+  }
+  static serviceUnavailable(message = "Service unavailable") {
+    return new ApiError(503, message);
   }
 }
