@@ -5,10 +5,16 @@ import { authorize } from "../../middlewares/authorize";
 
 const router = Router();
 
-router.use(authenticate, authorize("ADMIN"));
+router.use(authenticate);
 
-router.post("/ingest-all-media", ragController.ingestAllMedia);
+router.post(
+  "/ingest-all-media",
+  authorize("ADMIN"),
+  ragController.ingestAllMedia,
+);
 
 router.post("/query", ragController.mediaQuery);
+
+router.get("/stats", ragController.getStats);
 
 export default router;

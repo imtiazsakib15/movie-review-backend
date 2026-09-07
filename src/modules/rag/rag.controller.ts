@@ -22,4 +22,9 @@ export const ragController = {
     const rag = await ragService.generateAnswer(query, sourceType, limit, true);
     sendSuccess(res, 200, "Answer generated successfully!", rag);
   }),
+
+  getStats: catchAsync(async (req: Request, res: Response) => {
+    const stats = await ragService.getStats();
+    sendSuccess(res, 200, "RAG stats retrieved successfully!", stats);
+  }),
 };

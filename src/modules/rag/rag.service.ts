@@ -124,4 +124,28 @@ export class RAGService {
       throw ApiError.internal("Failed to generate answer from LLM service");
     }
   }
+
+  async getStats(): Promise<any> {
+    try {
+      const totalDocuments = await prisma.documentEmbedding.count({
+        where: { isDeleted: false },
+      });
+      const sourceTypeCounts = await prisma.documentEmbedding.groupBy({
+        by: ["sourceType"],
+        _count: { sourceType: true },
+        where: { isDeleted: false },
+      });
+      const sourceTypeCountModified = sourceTypeCounts.map((item) => ({
+        sourceType: item.sourceType,
+        count: item._count.sourceType,
+      }));
+
+      return { totalDocuments, sourceTypeCounts: sourceTypeCountModified };
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw ApiError.internal("Failed to retrieve RAG stats");
+    }
+  }
 }
