@@ -19,7 +19,12 @@ export const ragController = {
       throw ApiError.badRequest("Query is required");
     }
 
-    const rag = await ragService.generateAnswer(query, sourceType, limit, true);
+    const rag = await ragService.generateAnswer(
+      query,
+      sourceType,
+      limit,
+      false,
+    );
     sendSuccess(res, 200, "Answer generated successfully!", rag);
   }),
 
